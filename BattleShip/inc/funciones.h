@@ -14,6 +14,9 @@
 #define MENU1 1
 #define MENU2 2
 #define MENU3 3
+#define CANTSHIP 4
+#define LARGO 12
+#define ANCHO 58
 
 
 void menu();
@@ -26,3 +29,6 @@ void sig_handler(int);
 void logo();
 void print_tablero(char*, char*);
 void rectStrings(char*);
+void printbarco(int);
+void juego(int, char*, char*);
+int posship(char tablero[LARGO][ANCHO], int orientacion, int barco, char* posicion);
