@@ -16,7 +16,8 @@ void menu(){
         printf("                        CREDITOS\n");
         printf("                         SALIR\n\n");
         printf("Elije una opción: ");
-        scanf("%s",resp);
+        fgets(resp,20,stdin);
+        rectStrings(resp);
 
         res= convRespToNum(resp, MENU1);
 
@@ -56,13 +57,16 @@ void menu2(){
     do{
         system("clear");
         logo();
-        printf("                      COOP vs IA\n");
+        printf("                      COOP vs AI\n");
         printf("                        ONLINE\n");
         printf("                       REGRESAR\n\n\n");
         printf("Elije una opción: ");
 
+        fflush(stdin);
         memset(resp,0,sizeof(resp));
-        scanf("%s",resp);
+        fgets(resp,20,stdin);
+
+        rectStrings(resp); 
 
         res=convRespToNum(resp, MENU2);
 
@@ -105,7 +109,9 @@ void menu3(){
         
         printf("Elije una opción: ");
         memset(resp,0,sizeof(resp));
-        scanf("%s",resp);
+        fgets(resp,20,stdin);
+
+        rectStrings(resp);
 
         res=convRespToNum(resp, MENU3);
 
@@ -133,6 +139,7 @@ void menu3(){
 }
 
 int convRespToNum(char* resp, int menu){
+    /*FUNCION QUE DEVUELVE UN NUMERO SI COINCIDE CON LA PALABRA INGRESADA*/
 
     if(menu==MENU1){
 
@@ -348,10 +355,12 @@ void logo(){
 void print_tablero(char* p1, char* p2){
 
     int lenp1=strlen(p1);
-    int espacio=(28-lenp1);
-
-    printf("esto es p1 %s\ny esto es p2 %s\n",p1,p2);
+    int espacio;
     
+    rectStrings(p1);
+    rectStrings(p2);
+    
+    espacio=(29-lenp1);
 
     printf("    %s",p1);
     for(int i=0;i<espacio;i++){
@@ -374,6 +383,20 @@ void print_tablero(char* p1, char* p2){
 
 }
 
+void rectStrings(char* string){
+    int i,j=0;
+    char aux[20];
+    int len=strlen(string);
+
+    for(i=0;i<len;i++){
+        if((string[i]>='0' && string[i]<='9') || (string[i]>='a' && string[i]<='z') || (string[i]>='A' && string[i]<='Z') || string[i]==' '){
+            aux[j]=string[i];
+            aux[j+1]=0;
+            j++;
+        }
+    }
+    strcpy(string,aux);
+}
 
 
 

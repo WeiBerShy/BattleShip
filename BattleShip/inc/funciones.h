@@ -6,14 +6,14 @@
 #define INSTRUCCIONES 2
 #define CREDITOS 3
 #define SALIR 4
-#define COOP 5
-#define ONLINE 6
-#define REGRESAR 7
-#define CLIENT 8
-#define SERVER 9
-#define MENU1 10
-#define MENU2 11
-#define MENU3 12
+#define COOP 1
+#define ONLINE 2
+#define REGRESAR 3
+#define CLIENT 1
+#define SERVER 2
+#define MENU1 1
+#define MENU2 2
+#define MENU3 3
 
 
 void menu();
@@ -25,3 +25,4 @@ void beClient();
 void sig_handler(int);
 void logo();
 void print_tablero(char*, char*);
+void rectStrings(char*);
