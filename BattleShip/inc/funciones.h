@@ -1,4 +1,5 @@
 #include "sock-lib.h"
+#include <termios.h>
 
 #define ERROR -1
 #define OK 0
@@ -26,9 +27,14 @@ int convRespToNum(char* resp, int menu);
 void beServer();
 void beClient();
 void sig_handler(int);
+void chottoMatte(int);
 void logo();
 void print_tablero(char*, char*);
 void rectStrings(char*);
 void printbarco(int);
 void juego(int, char*, char*);
 int posship(char tablero[LARGO][ANCHO], int orientacion, int barco, char* posicion);
+int posch(char caracter);
+void printtablero(char tablero[LARGO][ANCHO]);
+char getch();
+int check(char* cadena);
