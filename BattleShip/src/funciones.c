@@ -32,7 +32,7 @@ void menu(){
 
     if(res==JUGAR){
         system("clear");
-        menu2();
+        menu3(); // CAMBIAR A MENU 2
     }
     else if(res==INSTRUCCIONES){
         //instrc();
@@ -194,16 +194,13 @@ void beServer(){
     char port[20];
     char player[20];
     char player2[20];
-    char posship[3];
-    int i;
+   
 
     
 
     signal(SIGALRM, sig_handler);
     
-    memset(player,0,20);
-    memset(player2,0,20);
-    memset(buf_rx,0,100);
+    
 
     system("clear");
     logo();
@@ -230,42 +227,61 @@ void beServer(){
         return;
     }
  
-    alarm(30);
+    alarm(15);
 
     sockfd=Aceptar_pedidos(sockaux);
     
     alarm(0);
 
+ 
+
 //---------ACA ARRANCA----------//
+    
+   
 
-    system("clear");
-    logo();
-    printf("Ingrese su Nombre: ");
-    fgets(player,20,stdin);
-    rectStrings(player);
+    
+    do{
 
+        memset(player,0,20);
+        memset(player2,0,20);
+        memset(buf_rx,0,100);
+
+        system("clear");
+        logo();
+        printf("Ingrese su Nombre: ");
+        fgets(player,20,stdin);
+        rectStrings(player);
+        if(strlen(player)>=4){
+            printf("\nESPERANDO AL PLAYER 2...");
+            sleep(5);
+        }
+        
+        else if(strlen(player)<4){
+            printf("\nEl NOMBRE debe tener al menos 4 caracteres.\n");
+            printf("\nPRESIONE ENTER PARA REINTENTAR...");
+            getch();
+        }
+        else{
+            printf("hola\n");
+            getch();
+            //CORREGIR NO SALE EL PRINT DE ARRIBA
+        }
+
+    }while(strlen(player)<4);
+
+    
 
     write(sockfd,player,strlen(player));
 
     byre = read(sockfd,player2,sizeof(player2));
 
-    buf_rx[byre]=0;
+    player2[byre]=0;
 
-    i=0;
-    do{
-        system("clear");
-        print_tablero(player, player2);
-        printf("COLOCACION DE BARCOS\n\n");
-        printbarco(i);
-        printf("Ingrese la posicion: ");
-        fgets(posship,3,stdin);
-        rectStrings(posship);
-        i++;
-        
-    }while(i<CANTSHIP);
+    juego(sockfd,player,player2);
         
     
 }
+
 
 void beClient(){
 
@@ -307,33 +323,64 @@ void beClient(){
         system("clear");
         return;
     }
-    system("clear");
-    logo();
-    printf("Ingrese su Nombre: ");
-    fgets(player,20,stdin);
-    rectStrings(player);
+
+
+
+    do{
+
+        memset(player,0,20);
+        memset(player2,0,20);
+        memset(buf_rx,0,100);
+
+        system("clear");
+        logo();
+        printf("Ingrese su Nombre: ");
+        fgets(player,20,stdin);
+        rectStrings(player);
+        
+        if(strlen(player)>=4){
+            printf("\nESPERANDO AL PLAYER 2...");
+            //CORREGIR NO SALE EL PRINT DE ARRIBA
+            sleep(5);
+        }
+        
+        else if(strlen(player)<4){
+            printf("\nEl NOMBRE debe tener al menos 4 caracteres.\n");
+            printf("\nPRESIONE ENTER PARA REINTENTAR...");
+            getch();
+        }
+
+    }while(strlen(player)<4);
+
     
+
+
     if((byte=read(sockfd,player2,sizeof(player2)))<0){
         printf("No se pudo leer el socket\n");
     }
     else{
-        buf_rx[byte]=0;
+        player2[byte]=0;
     }
 
     write(sockfd,player,strlen(player));
 
     
 
-        
+    juego(sockfd,player,player2);
    
 
 }
 
 
 void sig_handler(int sig){
-    printf("entro\n");
     menu3();
 }
+
+
+void chottoMatte(int sig){
+    sleep(0.1);
+}
+
 
 void logo(){
     printf(" ____________________________________________________\n");
@@ -355,6 +402,7 @@ void logo(){
     printf("|  |______________________________________________|  |\n");
     printf("|____________________________________________________|\n\n");
 }
+
 
 void print_tablero(char* p1, char* p2){
 
@@ -387,6 +435,7 @@ void print_tablero(char* p1, char* p2){
 
 }
 
+
 void rectStrings(char* string){
     int i,j=0;
     char aux[20];
@@ -401,6 +450,7 @@ void rectStrings(char* string){
     }
     strcpy(string,aux);
 }
+
 
 void printbarco(int barco){
 
@@ -429,6 +479,7 @@ void printbarco(int barco){
    }
 }
 
+
 void juego(int sockfd, char* p1, char* p2){
 
     char tablero[LARGO][ANCHO]= {{'-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'},
@@ -445,321 +496,387 @@ void juego(int sockfd, char* p1, char* p2){
                                 {'-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'}};
 
     int orientacion;
-    char ori[2];
     char pos[3];
     int barco;
     int flag;
     
-
-   /* do{
-        system("clear");
-        print_tablero(p1, p2);
-        printf("COLOCACION DE BARCOS\n\n");
-        for(i=0;i<=CANTSHIP;i++){
-            printbarco(i);
-            printf("Ingrese la orientacion: ");
-            fgets(poss,2,stdin);
-            rectStrings(poss);
-            pos=atoi(poss);
-        }
-        
-    }while(i!=CANTSHIP);*/
+    memset(pos,0,3);
 
     for(barco=0;barco<CANTSHIP;barco++){
-        system("clear");
-        print_tablero(p1, p2);
-        printf("COLOCACION DE BARCOS\n\n");
         do{
-            printbarco(barco);
-            printf("Ingrese la orientacion del BARCO %d:  ",barco+1);
-            fgets(ori,2,stdin);
-            rectStrings(ori);
-            orientacion=atoi(ori);
+            do{
+                system("clear");
+                print_tablero(p1, p2);
+                printf("COLOCACION DE BARCOS\n\n");
+                printbarco(barco);
+                printf("Ingrese la orientacion del BARCO %d:  ",barco+1);
+                scanf("%d",&orientacion);
+
+                if(barco<3 && (orientacion>2 || orientacion<1)){
+                    printf("La orientacion ingresada no es valida\n\n");
+                    printf("PRESIONE ENTER PARA REINTENTAR...");
+                    flag=ERROR;
+                    getch();
+                }
+                else if(barco==3 && (orientacion>4 || orientacion<1)){
+                    printf("La orientacion ingresada no es valida\n\n");
+                    printf("PRESIONE ENTER PARA REINTENTAR...");
+                    flag=ERROR;
+                    getch();
+                }
+                else{
+                    flag=OK;
+                }
+
+            }while(flag!=OK);
+
+            flag=ERROR;
+
+            do{
+                system("clear");
+                print_tablero(p1, p2);
+                printf("COLOCACION DE BARCOS\n\n");
+                printf("Ingrese la posición del BARCO %d:  ",barco+1);
+                //limpio el buffer
+                while(getchar() != '\n');
+                fgets(pos,3,stdin);
+                rectStrings(pos);
+                
+                flag=check(pos);
+
+                if(flag==ERROR){
+                    printf("La posicion ingresada no es valida\n\n");
+                    printf("PRESIONE ENTER PARA REINTENTAR...");
+                    getch();
+                }
+                else{
+                    //limpio el buffer
+                    while(getchar() != '\n');   
+                }
+
+            }while(flag!=OK);  
+
+            flag=ERROR;
+
             flag=posship(tablero,orientacion,barco,pos);
+
         }while(flag!=OK);
         
 
            
     }
 
-
-   /* for(int barco=0;barco<CANTSHIP;barco++){
-        do{  
-
-            printtablero(tablero);
-            printf("Ingrese la posicion: ");
-            scanf("%s",pos);
-            flag = posship(tablero,barco,pos);
-        }
-        while(flag!=OK);
-
-           
-    }*/
 }
 
 
 int posship(char tablero[LARGO][ANCHO], int orientacion, int barco, char* posicion){
 
-    char ori[2]={0,0};
+    
     int X,Y;
-    char y[2];
+    char x[2];
   
-    if(!check(posicion)){
-        system("clear");
-        return ERROR;
-    }
-    
+    //guarto el ultimo caracter de posicion en x junto a '\0'
     for(int i=0;i<2;i++){
-        y[i]=posicion[i+1];
+        x[i]=posicion[i+1];
     }
     
-    X=atoi(y)+1;
+    X=atoi(x)+1;
     Y=posch(posicion[0])+1;
  
     switch (barco){
     
-    case 0:
+    case 0:           
 
-        do{
-            system("clear");
-            printtablero(tablero);
-            printf("Igrese la orientacion del barco.\n");
-            printbarco(barco);
-            printf("Orientacion: ");
-            scanf(" %c",&ori[0]);
-            
-            
+        if(orientacion==1){
 
-            if(ori[0]=='1'){
-
-                if(tablero[X][Y]==' ' && tablero[X][Y+1]==' '){                              
-                    tablero[X][Y]='#';                   
-                    tablero[X][Y+1]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada Sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
-                
-            }
-            else if(ori[0]=='2'){
-                if(tablero[X][Y]==' ' && tablero[X+1][Y]==' '){
-                    tablero[X][Y]='#';
-                    tablero[X+1][Y]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada Sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
+            if(tablero[X][Y]==' ' && tablero[X][Y+1]==' '){                              
+                tablero[X][Y]='#';                   
+                tablero[X][Y+1]='#';
+                system("clear");
+                return OK;
             }
             else{
-                printf("debe responder con 1 o 2\n");
+                printf("\nLa ubicacion seleccionada Sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
                 getch();
                 system("clear");
-            } 
+                return ERROR;
+            }
+            
+        }
+        else if(orientacion==2){
+            if(tablero[X][Y]==' ' && tablero[X+1][Y]==' '){
+                tablero[X][Y]='#';
+                tablero[X+1][Y]='#';
+                system("clear");
+                return OK;
+            }
+            else{
+                printf("\nLa ubicacion seleccionada Sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
+                getch();
+                system("clear");
+                return ERROR;
+            }
+        }
 
-        }while((ori[0] != '1' && ori[0] != '2'));     
+
+          
     
         break;
 
     case 1:
 
-        do{
-            system("clear");
-            printtablero(tablero);
-            printf("Igrese la orientacion del barco.\n");
-            printbarco(barco);
-            printf("Orientacion: ");
-            scanf(" %c",&ori[0]);
+        if(orientacion==1){
 
-            if(ori[0]=='1'){
-
-                if(tablero[X][Y]==' ' && tablero[X][Y+1]==' ' && tablero[X][Y-1]==' '){
-                    tablero[X][Y]='#';
-                    tablero[X][Y+1]='#';
-                    tablero[X][Y-1]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
-
+            if(tablero[X][Y]==' ' && tablero[X][Y+1]==' ' && tablero[X][Y-1]==' '){
+                tablero[X][Y]='#';
+                tablero[X][Y+1]='#';
+                tablero[X][Y-1]='#';
+                system("clear");
+                return OK;
             }
-            else if(ori[0]=='2'){
-
-                if(tablero[X][Y]==' ' && tablero[X+1][Y]==' ' && tablero[X-1][Y]==' '){
-                    tablero[X][Y]='#';
-                    tablero[X+1][Y]='#';
-                    tablero[X-1][Y]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
-            }
-            else {
-                printf("debe responder con 1 o 2\n");
+            else{
+                printf("\nLa ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
                 getch();
                 system("clear");
+                return ERROR;
             }
 
-        }while(ori[0] != '1' && ori[0] != '2');     
+        }
+        else if(orientacion==2){
+
+            if(tablero[X][Y]==' ' && tablero[X+1][Y]==' ' && tablero[X-1][Y]==' '){
+                tablero[X][Y]='#';
+                tablero[X+1][Y]='#';
+                tablero[X-1][Y]='#';
+                system("clear");
+                return OK;
+            }
+            else{
+                printf("\nLa ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
+                getch();
+                system("clear");
+                return ERROR;
+            }
+        }
+           
     
         break;
 
     case 2:
 
-        do{
-            system("clear");
-            printtablero(tablero);
-            printf("Igrese la orientacion del barco.\n");
-            printbarco(barco);
-            printf("Orientacion: ");
-            scanf(" %c",&ori[0]);
+        if(orientacion==1){
 
-            if(ori[0]=='1'){
+            if(tablero[X][Y]==' ' && tablero[X][Y+1]==' ' && tablero[X][Y-1]==' ' && tablero[X][Y+2]==' '){
 
-                if(tablero[X][Y]==' ' && tablero[X][Y+1]==' ' && tablero[X][Y-1]==' ' && tablero[X][Y+2]==' '){
-
-                    tablero[X][Y]='#';
-                    tablero[X][Y+1]='#';
-                    tablero[X][Y-1]='#';
-                    tablero[X][Y+2]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
+                tablero[X][Y]='#';
+                tablero[X][Y+1]='#';
+                tablero[X][Y-1]='#';
+                tablero[X][Y+2]='#';
+                system("clear");
+                return OK;
             }
-            else if(ori[0]=='2'){
-                
-                if(tablero[X][Y]==' ' && tablero[X+1][Y]==' ' && tablero[X-1][Y]==' ' && tablero[X+2][Y]==' '){
-                    tablero[X][Y]='#';
-                    tablero[X+1][Y]='#';
-                    tablero[X-1][Y]='#';
-                    tablero[X+2][Y]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
-            }
-            else {
-                printf("debe responder con 1 o 2\n");
+            else{
+                printf("\nLa ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
                 getch();
                 system("clear");
+                return ERROR;
             }
-
-        }while(ori[0] != '1' && ori[0] != '2');     
+        }
+        else if(orientacion==2){
+            
+            if(tablero[X][Y]==' ' && tablero[X+1][Y]==' ' && tablero[X-1][Y]==' ' && tablero[X+2][Y]==' '){
+                tablero[X][Y]='#';
+                tablero[X+1][Y]='#';
+                tablero[X-1][Y]='#';
+                tablero[X+2][Y]='#';
+                system("clear");
+                return OK;
+            }
+            else{
+                printf("\nLa ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
+                getch();
+                system("clear");
+                return ERROR;
+            }
+        }
+          
     
         break; 
 
     case 3:
 
-         do{
-            system("clear");
-            printtablero(tablero);
-            printf("Igrese la orientacion del barco.\n");
-            printbarco(barco);
-            printf("Orientacion: ");
-            scanf(" %c",&ori[0]);
+         
 
-            if(ori[0]=='1'){
+        if(orientacion==1){
 
-                if(tablero[X][Y]==' ' && tablero[X][Y+1]==' ' && tablero[X][Y-1]==' ' && tablero[X+1][Y]==' '){
+            if(tablero[X][Y]==' ' && tablero[X][Y+1]==' ' && tablero[X][Y-1]==' ' && tablero[X+1][Y]==' '){
 
-                    tablero[X][Y]='#';                    
-                    tablero[X][Y+1]='#';
-                    tablero[X][Y-1]='#';
-                    tablero[X+1][Y]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
+                tablero[X][Y]='#';                    
+                tablero[X][Y+1]='#';
+                tablero[X][Y-1]='#';
+                tablero[X+1][Y]='#';
+                system("clear");
+                return OK;
             }
-            else if(ori[0]=='2'){
-
-                if(tablero[X][Y]==' ' && tablero[X+1][Y]==' ' && tablero[X-1][Y]==' ' && tablero[X][Y+1]==' '){
-                    tablero[X][Y]='#';
-                    tablero[X+1][Y]='#';
-                    tablero[X-1][Y]='#';
-                    tablero[X][Y+1]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
-            }
-            else if(ori[0]=='3'){
-
-                if(tablero[X][Y]==' ' && tablero[X][Y+1]==' ' && tablero[X][Y-1]==' ' && tablero[X-1][Y]==' '){
-
-                    tablero[X][Y]='#';
-                    tablero[X][Y+1]='#';
-                    tablero[X][Y-1]='#';
-                    tablero[X-1][Y]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
-            }
-            else if(ori[0]=='4'){
-
-                if(tablero[X][Y]==' ' && tablero[X+1][Y]==' ' && tablero[X-1][Y]==' ' && tablero[X][Y-1]==' '){
-                    tablero[X][Y]='#';
-                    tablero[X+1][Y]='#';
-                    tablero[X-1][Y]='#';
-                    tablero[X][Y-1]='#';
-                    system("clear");
-                    return OK;
-                }
-                else{
-                    printf("La ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
-                    getch();
-                    system("clear");
-                }
-            }        
-            else {
-                printf("debe responder con 1, 2, 3 o 4\n");
+            else{
+                printf("\nLa ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
                 getch();
                 system("clear");
+                return ERROR;
             }
-        }while(ori[0] < '1' && ori[0] > '4');
+        }
+        else if(orientacion==2){
+
+            if(tablero[X][Y]==' ' && tablero[X+1][Y]==' ' && tablero[X-1][Y]==' ' && tablero[X][Y+1]==' '){
+                tablero[X][Y]='#';
+                tablero[X+1][Y]='#';
+                tablero[X-1][Y]='#';
+                tablero[X][Y+1]='#';
+                system("clear");
+                return OK;
+            }
+            else{
+                printf("\nLa ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
+                getch();
+                system("clear");
+                return ERROR;
+            }
+        }
+        else if(orientacion==3){
+
+            if(tablero[X][Y]==' ' && tablero[X][Y+1]==' ' && tablero[X][Y-1]==' ' && tablero[X-1][Y]==' '){
+
+                tablero[X][Y]='#';
+                tablero[X][Y+1]='#';
+                tablero[X][Y-1]='#';
+                tablero[X-1][Y]='#';
+                system("clear");
+                return OK;
+            }
+            else{
+                printf("\nLa ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
+                getch();
+                system("clear");
+                return ERROR;
+            }
+        }
+        else if(orientacion==4){
+
+            if(tablero[X][Y]==' ' && tablero[X+1][Y]==' ' && tablero[X-1][Y]==' ' && tablero[X][Y-1]==' '){
+                tablero[X][Y]='#';
+                tablero[X+1][Y]='#';
+                tablero[X-1][Y]='#';
+                tablero[X][Y-1]='#';
+                system("clear");
+                return OK;
+            }
+            else{
+                printf("\nLa ubicacion seleccionada ya esta ocupada o sale fuera de los limites.\n");
+                printf("\nPRECIONES ENTER PARA REINTENTAR...");
+                getch();
+                system("clear");
+                return ERROR;
+            }
+        }        
        
         break;
     }
 
     return ERROR;
 }
+
+
+int posch(char caracter){
+
+    char posc[28]="ABCDEFGHIJKLMNOPQRSTUVWXYZ@";
+    int i;
+
+    for(i=0;i<28;i++){
+
+        if(posc[i]==caracter){
+            return i;
+        }
+    }
+
+    return ERROR;
+}
+
+
+void printtablero(char tablero[LARGO][ANCHO]){
+
+    printf("\n     ABCDEFGHIJKLMNOPQRSTUVWXYZ@ ABCDEFGHIJKLMNOPQRSTUVWXYZ@\n");
+    for(int i=0;i<12;i++){
+        if(i==0 || i==11){
+        printf("    %s\n",tablero[i]);    
+        }
+        else
+        printf("  %d %s\n",i-1,tablero[i]);
+    }
+}
+
+
+char getch(){
+
+    char buf = 0;
+    struct termios old ={0};
+    fflush(stdout);
+    if(tcgetattr(0,&old) < 0)
+      //  perror("tcsetattr()");
+    old.c_lflag &= ~ICANON;
+    old.c_lflag &= ~ECHO;
+    old.c_cc[VMIN] = 1;    
+    old.c_cc[VTIME] = 0; 
+    if(tcsetattr(0, TCSANOW,&old) < 0);
+      //  perror("tcsetattr ICANON");
+    if(read(0,&buf,1) < 0);
+     //   perror("read()");
+    old.c_lflag |= ICANON;
+    old.c_lflag |= ECHO;
+    if(tcsetattr(0, TCSADRAIN, &old) < 0);
+      //  perror("tcsetattr ~ICANON");
+
+    return buf; 
+}
+
+
+int check(char* cadena){
+    int len;
+    len=strlen(cadena);
+
+   
+    if(len!=2){
+        printf("\nLa posicion ingresada no es correcta.\n");
+        getch();
+        return ERROR;
+    }
+    if(cadena[0]>='a' && cadena[0]<='z'){
+        cadena[0]-=32;
+    }  
+    if((cadena[0]>='A' && cadena[0]<='Z') && (cadena[1]>='0' && cadena[1]<='9')){     
+        return OK;   
+    }
+    else if((cadena[0]=='@') && (cadena[1]>='0' && cadena[1]<='9')){
+        return OK;
+    }
+    
+    printf("\nLa posicion ingresada no es correcta.\n");
+    getch();
+
+    return ERROR;
+}
+
+
+
+
 
 
 
