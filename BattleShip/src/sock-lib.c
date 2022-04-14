@@ -99,7 +99,6 @@ int Open_conection (struct sockaddr_in * my_addr, char* ip, int port){
 		
 		return -1;
 	}
-	printf("espero antes del listen");
 	/* Habilitamos el socket para recibir conexiones, con una cola de conexiones en espera que tendrá como máximo el tamaño especificado en BACKLOG*/
 	if ((aux = listen (sockaux, BACKLOG)) == -1){
 	
