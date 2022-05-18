@@ -15,7 +15,7 @@
 #define MENU1 1
 #define MENU2 2
 #define MENU3 3
-#define CANTSHIP 4
+#define CANTSHIP 1 //es 4
 #define LARGO 12
 #define ANCHO 58
 
@@ -32,9 +32,10 @@ void logo();
 void print_tablero(char*, char*);
 void rectStrings(char*);
 void printbarco(int);
-void juego(int, char*, char*);
+void juego(int, char*, char* ,int);
 int posship(char tablero[LARGO][ANCHO], int orientacion, int barco, char* posicion);
 int posch(char caracter);
-void printtablero(char tablero[LARGO][ANCHO]);
+void printtablero(char tablero[LARGO][ANCHO], char* p1, char* p2);
 char getch();
 int check(char* cadena);
+void attack(char tablero[LARGO][ANCHO], int , int, char*, char*);

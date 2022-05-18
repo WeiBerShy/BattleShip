@@ -10,6 +10,7 @@
 #include <arpa/inet.h>
 #include <netdb.h>
 #include <signal.h>
+#include <time.h>
 
 
 #define PORT 8081	/* El puerto donde se conectará, servidor */

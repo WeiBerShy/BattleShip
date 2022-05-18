@@ -48,6 +48,7 @@ void menu(){
     
 }
 
+
 void menu2(){
 
     char resp[20];
@@ -93,6 +94,7 @@ void menu2(){
 
 }
 
+
 void menu3(){
 
     char resp[20];
@@ -137,6 +139,7 @@ void menu3(){
     }
 
 }
+
 
 int convRespToNum(char* resp, int menu){
     /*FUNCION QUE DEVUELVE UN NUMERO SI COINCIDE CON LA PALABRA INGRESADA*/
@@ -188,8 +191,6 @@ void beServer(){
     
     struct sockaddr_in servaddr;
     int sockfd, sockaux,byre;
-    char buf_tx[100]="ELLA NO TE ANHELA";
-    char buf_rx[100];
     char ip[20];
     char port[20];
     char player[20];
@@ -213,7 +214,7 @@ void beServer(){
     fgets(port,20,stdin);
     rectStrings(port);
     
-    
+    alarm(20);
     
     system("clear");
     logo();
@@ -227,7 +228,7 @@ void beServer(){
         return;
     }
  
-    alarm(15);
+    
 
     sockfd=Aceptar_pedidos(sockaux);
     
@@ -244,7 +245,7 @@ void beServer(){
 
         memset(player,0,20);
         memset(player2,0,20);
-        memset(buf_rx,0,100);
+    
 
         system("clear");
         logo();
@@ -252,19 +253,16 @@ void beServer(){
         fgets(player,20,stdin);
         rectStrings(player);
         if(strlen(player)>=4){
-            printf("\nESPERANDO AL PLAYER 2...");
-            sleep(5);
+            //printf("\nESPERANDO AL PLAYER 2...");
+           // getch();
+            //CORREGIR NO SALE EL PRINT DE ARRIBA
         }
+
         
         else if(strlen(player)<4){
             printf("\nEl NOMBRE debe tener al menos 4 caracteres.\n");
             printf("\nPRESIONE ENTER PARA REINTENTAR...");
             getch();
-        }
-        else{
-            printf("hola\n");
-            getch();
-            //CORREGIR NO SALE EL PRINT DE ARRIBA
         }
 
     }while(strlen(player)<4);
@@ -277,7 +275,7 @@ void beServer(){
 
     player2[byre]=0;
 
-    juego(sockfd,player,player2);
+    juego(sockfd,player,player2,SERVER);
         
     
 }
@@ -287,8 +285,6 @@ void beClient(){
 
     
     int sockfd,byte;
-    char buf_tx[100]="que pasa pa";
-    char buf_rx[100];
     char cadenas[2][20];
     char player[20];
     char player2[20];
@@ -330,7 +326,6 @@ void beClient(){
 
         memset(player,0,20);
         memset(player2,0,20);
-        memset(buf_rx,0,100);
 
         system("clear");
         logo();
@@ -339,9 +334,9 @@ void beClient(){
         rectStrings(player);
         
         if(strlen(player)>=4){
-            printf("\nESPERANDO AL PLAYER 2...");
+            //printf("\nESPERANDO AL PLAYER 2...");
             //CORREGIR NO SALE EL PRINT DE ARRIBA
-            sleep(5);
+            //sleep(5);
         }
         
         else if(strlen(player)<4){
@@ -366,7 +361,7 @@ void beClient(){
 
     
 
-    juego(sockfd,player,player2);
+    juego(sockfd,player,player2,CLIENT);
    
 
 }
@@ -442,7 +437,7 @@ void rectStrings(char* string){
     int len=strlen(string);
 
     for(i=0;i<len;i++){
-        if((string[i]>='0' && string[i]<='9') || (string[i]>='a' && string[i]<='z') || (string[i]>='A' && string[i]<='Z') || string[i]==' ' || string[i]=='.'){
+        if((string[i]>='0' && string[i]<='9') || (string[i]>='a' && string[i]<='z') || (string[i]>='A' && string[i]<='Z') || string[i]==' ' || string[i]=='.'  || string[i]=='@'){
             aux[j]=string[i];
             aux[j+1]=0;
             j++;
@@ -480,7 +475,7 @@ void printbarco(int barco){
 }
 
 
-void juego(int sockfd, char* p1, char* p2){
+void juego(int sockfd, char* p1, char* p2, int id){
 
     char tablero[LARGO][ANCHO]= {{'-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-','-'},
                                 {'|',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','|',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ',' ','|'},
@@ -506,20 +501,20 @@ void juego(int sockfd, char* p1, char* p2){
         do{
             do{
                 system("clear");
-                print_tablero(p1, p2);
+                printtablero(tablero, p1, p2);
                 printf("COLOCACION DE BARCOS\n\n");
                 printbarco(barco);
-                printf("Ingrese la orientacion del BARCO %d:  ",barco+1);
+                printf("Ingrese la orientacion del BARCO %d: ",barco+1);
                 scanf("%d",&orientacion);
 
                 if(barco<3 && (orientacion>2 || orientacion<1)){
-                    printf("La orientacion ingresada no es valida\n\n");
+                    printf("\nLa orientacion ingresada no es valida\n\n");
                     printf("PRESIONE ENTER PARA REINTENTAR...");
                     flag=ERROR;
                     getch();
                 }
                 else if(barco==3 && (orientacion>4 || orientacion<1)){
-                    printf("La orientacion ingresada no es valida\n\n");
+                    printf("\nLa orientacion ingresada no es valida\n\n");
                     printf("PRESIONE ENTER PARA REINTENTAR...");
                     flag=ERROR;
                     getch();
@@ -534,9 +529,9 @@ void juego(int sockfd, char* p1, char* p2){
 
             do{
                 system("clear");
-                print_tablero(p1, p2);
+                printtablero(tablero, p1, p2);
                 printf("COLOCACION DE BARCOS\n\n");
-                printf("Ingrese la posición del BARCO %d:  ",barco+1);
+                printf("Ingrese la posición del BARCO %d: ",barco+1);
                 //limpio el buffer
                 while(getchar() != '\n');
                 fgets(pos,3,stdin);
@@ -545,7 +540,7 @@ void juego(int sockfd, char* p1, char* p2){
                 flag=check(pos);
 
                 if(flag==ERROR){
-                    printf("La posicion ingresada no es valida\n\n");
+                    printf("\nLa posicion ingresada no es valida\n\n");
                     printf("PRESIONE ENTER PARA REINTENTAR...");
                     getch();
                 }
@@ -562,8 +557,16 @@ void juego(int sockfd, char* p1, char* p2){
 
         }while(flag!=OK);
         
+    }
 
-           
+ //----------------COMIENZA EL ATAQUE-----------------//
+
+
+    if(id==SERVER){
+       attack(tablero,sockfd,SERVER,p1,p2);
+    }
+    else if(id==CLIENT){
+        attack(tablero,sockfd,CLIENT,p1,p2);
     }
 
 }
@@ -811,9 +814,22 @@ int posch(char caracter){
 }
 
 
-void printtablero(char tablero[LARGO][ANCHO]){
+void printtablero(char tablero[LARGO][ANCHO], char* p1, char* p2){
 
-    printf("\n     ABCDEFGHIJKLMNOPQRSTUVWXYZ@ ABCDEFGHIJKLMNOPQRSTUVWXYZ@\n");
+    int lenp1=strlen(p1);
+    int espacio;
+    
+    rectStrings(p1);
+    rectStrings(p2);
+    
+    espacio=(28-lenp1);
+
+    printf("     %s",p1);
+    for(int i=0;i<espacio;i++){
+        printf(" ");
+    }
+    printf("%s\n",p2);
+    printf("     ABCDEFGHIJKLMNOPQRSTUVWXYZ@ ABCDEFGHIJKLMNOPQRSTUVWXYZ@\n");
     for(int i=0;i<12;i++){
         if(i==0 || i==11){
         printf("    %s\n",tablero[i]);    
@@ -852,10 +868,10 @@ int check(char* cadena){
     int len;
     len=strlen(cadena);
 
+    printf("%s\n",cadena);
+
    
     if(len!=2){
-        printf("\nLa posicion ingresada no es correcta.\n");
-        getch();
         return ERROR;
     }
     if(cadena[0]>='a' && cadena[0]<='z'){
@@ -867,15 +883,80 @@ int check(char* cadena){
     else if((cadena[0]=='@') && (cadena[1]>='0' && cadena[1]<='9')){
         return OK;
     }
-    
-    printf("\nLa posicion ingresada no es correcta.\n");
-    getch();
 
     return ERROR;
 }
 
 
+void attack(char tablero[LARGO][ANCHO], int sockfd, int id, char* p1, char* p2){
 
+    char resp[3];
+    int Bread;
+    int fturn;
+    char aux[10];
+    char aux2[20]="ESPERANDO A ";
+    bzero(resp,3);
+    
+
+
+    printtablero(tablero,p1,p2);
+
+    if(id==SERVER){
+        strcpy(aux,p2);
+        strcat(aux,"...");
+        strcat(aux2,aux);
+        
+        
+        fturn=rand()%2;
+        if(fturn==0){
+            printf("VOY PRIMERO\n");
+            //sleep(1);
+            write(sockfd,"0",1);
+            puts(aux2);
+            read(sockfd,resp,2);
+            sleep(3);
+            
+        }
+        else{
+            printf("VOY SEGUNDO\n");
+            //sleep(1);
+            write(sockfd,"1",1);
+            puts(aux2);
+            read(sockfd,resp,2);
+            sleep(3);
+        }
+
+        
+    }
+    else if(id==CLIENT){
+        
+        strcpy(aux,p2);
+        strcat(aux,"...");
+        strcat(aux2,aux);
+        puts(aux2);
+        
+        Bread=read(sockfd,resp,sizeof(resp));
+        resp[Bread]=0;
+
+        system("clear");
+        printtablero(tablero,p1,p2);
+
+        if(!strcmp(resp,"1")){
+            printf("VOY PRIMERO\n");
+            puts(aux2);
+            write(sockfd,"1",1);
+            sleep(3);
+        }
+        else{
+            printf("VOY SEGUNDO\n");
+            puts(aux2);
+            write(sockfd,"1",1);
+            sleep(3);
+        }
+
+    }
+
+}
 
 
 
