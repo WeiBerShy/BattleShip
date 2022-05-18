@@ -893,18 +893,19 @@ void attack(char tablero[LARGO][ANCHO], int sockfd, int id, char* p1, char* p2){
     char resp[3];
     int Bread;
     int fturn;
-    char aux[10];
-    char aux2[20]="ESPERANDO A ";
+    char aux[30]="ESPERANDO A ";
+    
     bzero(resp,3);
+    
     
 
 
     printtablero(tablero,p1,p2);
 
     if(id==SERVER){
-        strcpy(aux,p2);
+        strcat(aux,p2);
         strcat(aux,"...");
-        strcat(aux2,aux);
+        
         
         
         fturn=rand()%2;
@@ -912,7 +913,7 @@ void attack(char tablero[LARGO][ANCHO], int sockfd, int id, char* p1, char* p2){
             printf("VOY PRIMERO\n");
             //sleep(1);
             write(sockfd,"0",1);
-            puts(aux2);
+            puts(aux);
             read(sockfd,resp,2);
             sleep(3);
             
@@ -921,7 +922,7 @@ void attack(char tablero[LARGO][ANCHO], int sockfd, int id, char* p1, char* p2){
             printf("VOY SEGUNDO\n");
             //sleep(1);
             write(sockfd,"1",1);
-            puts(aux2);
+            puts(aux);
             read(sockfd,resp,2);
             sleep(3);
         }
@@ -930,10 +931,10 @@ void attack(char tablero[LARGO][ANCHO], int sockfd, int id, char* p1, char* p2){
     }
     else if(id==CLIENT){
         
-        strcpy(aux,p2);
+        strcat(aux,p2);
         strcat(aux,"...");
-        strcat(aux2,aux);
-        puts(aux2);
+        
+        puts(aux);
         
         Bread=read(sockfd,resp,sizeof(resp));
         resp[Bread]=0;
@@ -943,13 +944,13 @@ void attack(char tablero[LARGO][ANCHO], int sockfd, int id, char* p1, char* p2){
 
         if(!strcmp(resp,"1")){
             printf("VOY PRIMERO\n");
-            puts(aux2);
+            puts(aux);
             write(sockfd,"1",1);
             sleep(3);
         }
         else{
             printf("VOY SEGUNDO\n");
-            puts(aux2);
+            puts(aux);
             write(sockfd,"1",1);
             sleep(3);
         }
